@@ -86,15 +86,67 @@ app.post("/api/user", (req, res) => {
   }
 });
 
-/*app.delete("/api/user/:id", (req, res) => {
-  const { id } = req.params;
-  let user = userData.find((user) => user.id == id);
+/* User Delete Route*/
+app.delete("/api/user/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    let user = userData.find((user) => user.id == id);
+
     if (!user) {
       throw new Error("User not found");
     } else {
-
+      let index = userData.indexOf(user);
+      userData.splice(index, 1);
+      fs.writeFile("./data.json", JSON.stringify(userData), (err) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log("data.json updated");
+      });
+      res.json({
+        status: 200,
+        message: "User deleted successfully",
+        data: user,
+      });
     }
-});*/
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+/* User Patch Route*/
+app.patch("/api/user/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    let user = userData.find((user) => user.id == id);
+    if (!user) {
+      throw new Error("User not found");
+    } else {
+      const userDetails = req.body;
+      let index = userData.indexOf(user);
+      Object.keys(userDetails).forEach((key) => {
+        userData[index][key] = userDetails[key];
+      });
+      fs.writeFile("./data.json", JSON.stringify(userData), (err) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log("data.json updated");
+      });
+      res.json({
+        status: 200,
+        message: "User updates successfully",
+        data: userData[index],
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
 
 /* Basic Route manage*/
 app.use(function (req, res) {
